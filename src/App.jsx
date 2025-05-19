@@ -8,9 +8,9 @@ export default function TanawLandingPage() {
   const [notificationType, setNotificationType] = useState("success");
 
   // App version
-  const appVersion = "0.8.5";
-  const appCode = "Tanaw.v0.8.5-beta.1.apk";
-  const appLink = `https://github.com/jules-pecaoco/tanaw/releases/download/preview/${appCode}`;
+  const appVersion = "0.9.0";
+  const appCode = "Tanaw.v0.9.0-beta.2.apk";
+  const appLink = `https://github.com/jules-pecaoco/tanaw/releases/download/v0.9.0-beta.2/Tanaw.v0.9.0-beta.2.apk`;
 
   useEffect(() => {
     const handleScroll = () => {
