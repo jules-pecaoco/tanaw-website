@@ -57,14 +57,14 @@ export default function TanawLandingPage() {
   const [showNotificationContent, setShowNotificationContent] = useState(false);
   const [isNotificationMounted, setIsNotificationMounted] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
-  const [notificationType, setNotificationType] = useState("success"); // 'success' or 'info'
+  const [notificationType, setNotificationType] = useState("success");
   const [heroContentLoaded, setHeroContentLoaded] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
 
   // App version
-  const appVersion = "0.9.8";
-  const appCode = "Tanaw.v0.9.8-beta.3.apk";
-  const appLink = `https://github.com/jules-pecaoco/tanaw/releases/download/v0.9.8-beta-3/Tanaw.v0.9.8-beta.3.apk`;
+  const appVersion = "0.9.85";
+  const appCode = "Tanaw.v0.9.85-beta.3.apk";
+  const appLink = `https://github.com/jules-pecaoco/tanaw/releases/download/v0.9.85-beta.3/Tanaw.v0.9.85-beta.3.apk`;
 
   useEffect(() => {
     const handleScroll = () => {
