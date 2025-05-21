@@ -1,92 +1,221 @@
-import { useState, useEffect } from "react";
-import { ArrowDown, ChevronRight, Download, X, CheckCircle, AlertCircle } from "lucide-react"; // Import from lucide-react (available in this environment)
+import { useState, useEffect, useRef } from "react";
+import {
+  ArrowDown,
+  ChevronRight,
+  Download,
+  X,
+  CheckCircle,
+  AlertCircle,
+  CloudSun, // Added
+  MapPin, // Added
+  PhoneOutgoing, // Added
+  MessageSquareWarning, // Added
+  Bot, // Added for BotIcon
+  BarChart3, // Added
+  Github, // Added
+  ArrowUp, // Added
+  Smartphone, // Added (Example, can be replaced by specific app icons)
+} from "lucide-react";
+
+// Simple Intersection Observer Hook
+const useIntersectionObserver = (options = { threshold: 0.1, triggerOnce: true }) => {
+  const [isIntersecting, setIsIntersecting] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const currentRef = ref.current;
+    if (!currentRef) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setIsIntersecting(true);
+        if (options.triggerOnce) {
+          observer.unobserve(currentRef);
+        }
+      } else {
+        if (!options.triggerOnce) {
+          setIsIntersecting(false);
+        }
+      }
+    }, options);
+
+    observer.observe(currentRef);
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ref, options.threshold, options.triggerOnce]); // Keep dependencies simple
+
+  return [ref, isIntersecting];
+};
 
 export default function TanawLandingPage() {
   const [scrollY, setScrollY] = useState(0);
-  const [showNotification, setShowNotification] = useState(false);
+  const [showNotificationContent, setShowNotificationContent] = useState(false);
+  const [isNotificationMounted, setIsNotificationMounted] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
-  const [notificationType, setNotificationType] = useState("success");
+  const [notificationType, setNotificationType] = useState("success"); // 'success' or 'info'
+  const [heroContentLoaded, setHeroContentLoaded] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   // App version
-  const appVersion = "0.9.0";
-  const appCode = "Tanaw.v0.9.0-beta.2.apk";
-  const appLink = `https://github.com/jules-pecaoco/tanaw/releases/download/v0.9.0-beta.2/Tanaw.v0.9.0-beta.2.apk`;
+  const appVersion = "0.9.9";
+  const appCode = "Tanaw.v0.9.8-beta.3.apk";
+  const appLink = `https://github.com/jules-pecaoco/tanaw/releases/download/v0.9.8-beta-3/Tanaw.v0.9.8-beta.3.apk`;
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrollY(window.scrollY);
+      const currentScrollY = window.scrollY;
+      setScrollY(currentScrollY);
+      setShowBackToTop(currentScrollY > 300);
     };
 
     window.addEventListener("scroll", handleScroll);
+    // Trigger hero animations
+    const timer = setTimeout(() => setHeroContentLoaded(true), 100);
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      clearTimeout(timer);
     };
   }, []);
 
-  const handleDownload = (platform) => {
-    if (platform === "android") {
-      setNotificationMessage("Downloading Tanaw v" + appVersion + " for Android");
-      setNotificationType("success");
-      window.open(appLink, "_blank");
-    } else {
-      setNotificationMessage("iOS version coming soon!");
-      setNotificationType("info");
-    }
-    setShowNotification(true);
+  const triggerNotification = (message, type) => {
+    setNotificationMessage(message);
+    setNotificationType(type);
+    setIsNotificationMounted(true);
+    setTimeout(() => setShowNotificationContent(true), 50); // Allow mounting before transition
 
-    // Auto hide notification after 3 seconds
     setTimeout(() => {
-      setShowNotification(false);
+      setShowNotificationContent(false);
+      setTimeout(() => setIsNotificationMounted(false), 500); // Unmount after fade-out
     }, 3000);
   };
 
+  const handleDownload = (platform) => {
+    if (platform === "android") {
+      triggerNotification(`Preparing download for Tanaw v${appVersion} (Android)...`, "success");
+      // Actual download is handled by the <a> tag's href attribute
+    } else if (platform === "ios") {
+      triggerNotification("iOS version coming soon!", "info");
+    }
+  };
+
+  const closeNotification = () => {
+    setShowNotificationContent(false);
+    setTimeout(() => setIsNotificationMounted(false), 500); // Unmount after fade-out
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const appFeatures = [
+    {
+      title: "Dynamic Weather Maps",
+      desc: "Visualize real-time heat and rain patterns with our interactive weather maps.",
+      Icon: CloudSun,
+      color: "bg-sky-500",
+    },
+    {
+      title: "Advanced Hazard Mapping",
+      desc: "Identify landslide, flood, and storm surge prone areas to stay prepared and safe.",
+      Icon: MapPin,
+      color: "bg-red-500",
+    },
+    {
+      title: "Emergency Agency Locator",
+      desc: "Quickly find, get directions to, and call nearby emergency response agencies.",
+      Icon: PhoneOutgoing,
+      color: "bg-green-500",
+    },
+    {
+      title: "User-Reported Hazard News",
+      desc: "Stay updated with real-time hazard reports submitted by fellow users in your vicinity.",
+      Icon: MessageSquareWarning,
+      color: "bg-yellow-500",
+    },
+    {
+      title: "AI-Powered Reporting",
+      desc: "Submit hazard reports analyzed and categorized by Gemini AI for accuracy and insights.",
+      Icon: Bot,
+      color: "bg-purple-500",
+    },
+    {
+      title: "Analytics & Forecasts",
+      desc: "Access weather forecasts and analytics derived from user-reported hazard data.",
+      Icon: BarChart3,
+      color: "bg-indigo-500",
+    },
+  ];
+
+  const showcaseHighlights = [
+    "Interactive climate and hazard maps at your fingertips.",
+    "Instant alerts for weather changes and nearby reported hazards (11km radius).",
+    "Seamlessly report incidents, powered by AI analysis and categorization.",
+    "Locate and contact emergency services with integrated calling and directions.",
+    "Community-driven insights through user reports and comprehensive analytics.",
+  ];
+
+  // Refs for intersection observer
+  const [featuresRef, featuresAreVisible] = useIntersectionObserver();
+  const [showcaseRef, showcaseAreVisible] = useIntersectionObserver();
+  const [downloadRef, downloadAreVisible] = useIntersectionObserver();
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-gray-50 text-gray-800 overflow-x-hidden">
       {/* Notification */}
-      {showNotification && (
+      {isNotificationMounted && (
         <div
-          className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg flex items-center gap-3 z-50 transition-all duration-300 ${
-            notificationType === "success" ? "bg-green-50 text-green-700 border border-green-200" : "bg-blue-50 text-blue-700 border border-blue-200"
-          }`}
+          className={`fixed top-6 right-6 p-4 rounded-lg shadow-xl flex items-center gap-3 z-[100] transition-all duration-500 ease-out transform
+            ${showNotificationContent ? "opacity-100 translate-x-0" : "opacity-0 translate-x-12"}
+            ${
+              notificationType === "success"
+                ? "bg-green-100 text-green-700 border border-green-300"
+                : "bg-blue-100 text-blue-700 border border-blue-300"
+            }`}
         >
-          {notificationType === "success" ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
-          <span>{notificationMessage}</span>
-          <button onClick={() => setShowNotification(false)} className="ml-2 p-1 rounded-full hover:bg-gray-200 transition-colors">
-            <X size={16} />
+          {notificationType === "success" ? <CheckCircle size={22} /> : <AlertCircle size={22} />}
+          <span className="font-medium">{notificationMessage}</span>
+          <button onClick={closeNotification} className="ml-auto p-1 rounded-full hover:bg-black/10 transition-colors">
+            <X size={18} />
           </button>
         </div>
       )}
 
       {/* Header */}
-      <header className={`fixed w-full transition-all duration-300 z-40 ${scrollY > 50 ? "bg-white shadow-md py-3" : "bg-transparent py-5"}`}>
+      <header
+        className={`fixed w-full transition-all duration-300 ease-in-out z-40 ${
+          scrollY > 50 ? "bg-white/95 backdrop-blur-md shadow-lg py-3" : "bg-transparent py-5"
+        }`}
+      >
         <div className="container mx-auto px-6 flex justify-between items-center">
           <div className="flex items-center">
-            <img src="/logo-transparent-bg.png" alt="Tanaw Logo" className="h-20 w-40 rounded-lg mr-3" />
+            <img src="/logo-transparent-bg.png" alt="Tanaw Logo" className="h-10 sm:h-12 w-auto mr-3" />
           </div>
 
           <nav>
             <ul className="hidden md:flex space-x-8">
-              <li>
-                <a href="#features" className="text-gray-600 hover:text-orange-500 transition-colors">
-                  Features
-                </a>
-              </li>
-              <li>
-                <a href="#showcase" className="text-gray-600 hover:text-orange-500 transition-colors">
-                  Showcase
-                </a>
-              </li>
-              <li>
-                <a href="#download" className="text-gray-600 hover:text-orange-500 transition-colors">
-                  Download
-                </a>
-              </li>
+              {[
+                { href: "#features", label: "Features" },
+                { href: "#showcase", label: "Showcase" },
+                { href: "#download", label: "Download" },
+              ].map((item) => (
+                <li key={item.href}>
+                  <a href={item.href} className="text-gray-600 hover:text-orange-500 transition-colors font-medium">
+                    {item.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </nav>
 
           <a
             href="#download"
-            className="hidden md:flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-5 py-2 rounded-lg transition-all font-medium"
+            className="hidden md:flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-lg transition-all font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
           >
             <Download size={18} />
             Get the App
@@ -95,49 +224,78 @@ export default function TanawLandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-16 md:pt-40 md:pb-24 bg-gradient-to-br from-white to-orange-50">
+      <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-gradient-to-br from-white via-orange-50 to-orange-100 relative">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center">
-            <div className="md:w-1/2 mb-12 md:mb-0">
+            <div className="md:w-1/2 mb-12 md:mb-0 text-center md:text-left">
               <div className="max-w-xl">
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-                  Experience the world through <span className="text-orange-500">tanaw</span>
+                <h1
+                  className={`text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight transition-all duration-700 ease-out ${
+                    heroContentLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+                  }`}
+                >
+                  Navigate Your World with <span className="text-orange-500">Tanaw</span>
                 </h1>
-                <p className="text-lg md:text-xl text-gray-600 mb-8">
-                  Your ultimate companion for exploring and discovering the world around you. Download now and see the difference.
+                <p
+                  className={`text-lg md:text-xl text-gray-700 mb-8 transition-all duration-700 ease-out delay-150 ${
+                    heroContentLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+                  }`}
+                >
+                  Your guide to climate awareness and hazard preparedness. Real-time maps, alerts, and community reports.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <button
+                <div
+                  className={`flex flex-col sm:flex-row gap-4 justify-center md:justify-start transition-all duration-700 ease-out delay-300 ${
+                    heroContentLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+                  }`}
+                >
+                  <a
+                    href={appLink}
+                    download={appCode}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     onClick={() => handleDownload("android")}
-                    className="flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg transition-all font-medium"
+                    className="flex items-center justify-center gap-2.5 bg-orange-500 hover:bg-orange-600 text-white px-7 py-3.5 rounded-lg transition-all font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                   >
                     <Download size={20} />
                     Download for Android
-                    <span className="opacity-70 text-sm ml-1">v{appVersion}</span>
-                  </button>
+                    <span className="opacity-80 text-sm ml-1 bg-black/10 px-1.5 py-0.5 rounded-sm">v{appVersion}</span>
+                  </a>
                   <button
                     onClick={() => handleDownload("ios")}
-                    className="flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-800 text-white px-6 py-3 rounded-lg transition-all font-medium"
+                    className="flex items-center justify-center gap-2.5 bg-gray-700 hover:bg-gray-800 text-white px-7 py-3.5 rounded-lg transition-all font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                   >
-                    <Download size={20} />
-                    iOS <span className="opacity-70">(Coming Soon)</span>
+                    <Smartphone size={20} /> {/* Using Smartphone for iOS */}
+                    iOS <span className="opacity-80 text-sm ml-1">(Coming Soon)</span>
                   </button>
                 </div>
               </div>
             </div>
-            <div className="md:w-1/2 flex justify-center">
-              <div className="relative">
-                <div className="absolute -top-6 -right-6 w-64 h-64 bg-orange-500 rounded-full opacity-10 blur-3xl"></div>
-                <div className="absolute -bottom-10 -left-10 w-72 h-72 bg-red-500 rounded-full opacity-10 blur-3xl"></div>
-                <img src="/logo-circle.png" alt="Tanaw App Screenshot" className="h-20 w-20" />
+            <div className="md:w-1/2 flex justify-center mt-10 md:mt-0">
+              <div
+                className={`relative transition-all duration-1000 ease-out delay-500 ${
+                  heroContentLoaded ? "opacity-100 scale-100" : "opacity-0 scale-90"
+                }`}
+              >
+                <div className="absolute -top-8 -right-8 w-72 h-72 bg-orange-400 rounded-full opacity-20 blur-3xl animate-pulse delay-500"></div>
+                <div className="absolute -bottom-12 -left-12 w-80 h-80 bg-red-400 rounded-full opacity-20 blur-3xl animate-pulse"></div>
+                {/* Assuming logo-circle.png is a relevant app icon or small visual */}
+                <img
+                  src="/logo-circle.png" // Replace with actual app screenshot or mockup if desired
+                  alt="Tanaw App Icon"
+                  className="relative z-10 h-40 w-40 sm:h-48 sm:w-48 md:h-56 md:w-56 rounded-full shadow-2xl animate-pulse" // Added animate-pulse for subtle motion
+                />
               </div>
             </div>
           </div>
         </div>
-        <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <div
+          className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 transition-opacity duration-1000 delay-[1200ms] ${
+            heroContentLoaded ? "opacity-100" : "opacity-0"
+          }`}
+        >
           <a
             href="#features"
-            className="flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-orange-500 hover:text-orange-600"
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-orange-500 hover:text-orange-600 hover:bg-orange-50 animate-bounce"
           >
             <ArrowDown size={20} />
           </a>
@@ -145,39 +303,35 @@ export default function TanawLandingPage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 bg-white">
+      <section
+        id="features"
+        ref={featuresRef}
+        className={`py-20 bg-white transition-all duration-1000 ease-out ${
+          featuresAreVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+        }`}
+      >
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Why Choose Tanaw?</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">Discover the powerful features that make Tanaw the perfect app for your needs</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Powerful Features of Tanaw</h2>
+            <p className="text-gray-700 max-w-2xl mx-auto text-lg">Empowering you with timely information and tools for safety and awareness.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Intuitive Interface",
-                desc: "Navigate with ease through our carefully designed user experience that puts functionality first.",
-                color: "bg-orange-500",
-              },
-              {
-                title: "Real-time Updates",
-                desc: "Stay informed with instant notifications and live data, keeping you connected to what matters most.",
-                color: "bg-gray-700",
-              },
-              {
-                title: "Privacy Focused",
-                desc: "Your data belongs to you. We implement industry-leading security measures to protect your information.",
-                color: "bg-red-500",
-              },
-            ].map((feature, index) => (
-              <div key={index} className="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition-all group">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {appFeatures.map((feature, index) => (
+              <div
+                key={index}
+                className={`bg-gray-100 rounded-xl p-6 md:p-8 hover:shadow-2xl transition-all duration-500 ease-out group transform hover:-translate-y-2 ${
+                  featuresAreVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+                }`}
+                style={{ transitionDelay: featuresAreVisible ? `${index * 100}ms` : "0ms" }}
+              >
                 <div
-                  className={`w-14 h-14 ${feature.color} rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}
+                  className={`w-16 h-16 ${feature.color} rounded-xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}
                 >
-                  <div className="w-6 h-6 bg-white rounded-md"></div>
+                  <feature.Icon size={32} className="text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-                <p className="text-gray-600">{feature.desc}</p>
+                <h3 className="text-xl lg:text-2xl font-bold text-gray-900 mb-3">{feature.title}</h3>
+                <p className="text-gray-600 text-base leading-relaxed">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -185,47 +339,62 @@ export default function TanawLandingPage() {
       </section>
 
       {/* App Showcase */}
-      <section id="showcase" className="py-20 bg-gray-50">
+      <section
+        id="showcase"
+        ref={showcaseRef}
+        className={`py-20 bg-gradient-to-br from-gray-50 to-orange-50 transition-all duration-1000 ease-out ${
+          showcaseAreVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+        }`}
+      >
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">App Showcase</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">Take a look at what Tanaw can do for you</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">See Tanaw in Action</h2>
+            <p className="text-gray-700 max-w-2xl mx-auto text-lg">
+              A glimpse into how Tanaw enhances your interaction with climate and hazard data.
+            </p>
           </div>
 
-          <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="md:w-1/2">
-              <div className="relative">
-                <div className="absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-2xl"></div>
-                <div className="relative bg-black rounded-2xl overflow-hidden shadow-xl aspect-video">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-16 h-16 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center">
-                      <div className="w-0 h-0 border-t-8 border-t-transparent border-l-12 border-l-white border-b-8 border-b-transparent ml-1"></div>
+          <div className="flex flex-col lg:flex-row items-center gap-12">
+            <div className="lg:w-1/2 w-full">
+              <div className="relative group">
+                <div className="absolute -inset-2 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl blur opacity-50 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+                <div className="relative bg-black rounded-2xl overflow-hidden shadow-xl aspect-[16/9]">
+                  {/* Replace with actual video or interactive demo if available */}
+                  <img
+                    src="https://placehold.co/800x450/333333/FFFFFF?text=Tanaw+App+Demo"
+                    alt="Tanaw App Demo Placeholder"
+                    className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-all">
+                    <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <div className="w-0 h-0 border-t-[12px] border-t-transparent border-l-[20px] border-l-white border-b-[12px] border-b-transparent ml-1.5"></div>{" "}
+                      {/* Play button */}
                     </div>
                   </div>
-                  <img src="/api/placeholder/800/450" alt="Tanaw App Demo Video Placeholder" className="w-full h-full object-cover opacity-80" />
                 </div>
               </div>
             </div>
 
-            <div className="md:w-1/2">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Transform Your Experience</h3>
-              <p className="text-gray-600 mb-6">
-                With Tanaw, you'll discover a new way to interact with the world around you. Our innovative features are designed to enhance your
-                daily experience, making life more efficient and enjoyable.
+            <div className="lg:w-1/2 w-full mt-8 lg:mt-0">
+              <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-5">Transform Your Awareness</h3>
+              <p className="text-gray-700 mb-8 text-lg leading-relaxed">
+                Tanaw offers a comprehensive suite of tools designed to make climate data accessible and hazard information actionable, fostering a
+                safer, more informed community.
               </p>
 
               <ul className="space-y-4">
-                {[
-                  "Quick and responsive interface",
-                  "Personalized recommendations",
-                  "Offline capabilities for use anywhere",
-                  "Regular updates with new features",
-                ].map((item, index) => (
-                  <li key={index} className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
-                      <ChevronRight size={16} className="text-white" />
+                {showcaseHighlights.map((item, index) => (
+                  <li
+                    key={index}
+                    className={`flex items-start gap-3 transition-all duration-500 ease-out ${
+                      showcaseAreVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-5"
+                    }`}
+                    style={{ transitionDelay: showcaseAreVisible ? `${200 + index * 100}ms` : "0ms" }}
+                  >
+                    <div className="w-7 h-7 mt-0.5 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0 shadow">
+                      <CheckCircle size={16} className="text-white" />
                     </div>
-                    <span className="text-gray-700">{item}</span>
+                    <span className="text-gray-700 flex-1">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -235,99 +404,134 @@ export default function TanawLandingPage() {
       </section>
 
       {/* Download Section */}
-      <section id="download" className="py-20 bg-gray-900 text-white">
+      <section
+        id="download"
+        ref={downloadRef}
+        className={`py-20 bg-gray-900 text-white transition-all duration-1000 ease-out ${
+          downloadAreVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+        }`}
+      >
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Get Tanaw Today</h2>
-            <p className="text-gray-300 max-w-2xl mx-auto">Join thousands of satisfied users and download Tanaw now</p>
+            <p className="text-gray-300 max-w-2xl mx-auto text-lg">Join our growing community of users. Download Tanaw and stay ahead.</p>
           </div>
 
-          <div className="flex flex-col md:flex-row justify-center gap-6 max-w-3xl mx-auto">
-            <div className="flex-1 bg-gray-800 p-6 rounded-xl hover:shadow-lg transition-all hover:bg-gray-700">
-              <div className="mb-6 flex items-center gap-3">
-                <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M17.523 15.34L20.089 10.908L16 3H10.5V3.012H10.471V21H16.001L20.09 13.091L17.523 15.34Z" fill="white" />
-                    <path
-                      d="M4 12C4 7.589 7.589 4 12 4C12.69 4 13.358 4.094 14 4.269V3.009C13.364 2.871 12.691 2.799 12 2.799C8.113 2.799 4.845 5.067 3.572 8.268C2.986 9.85 2.776 11.579 3.047 13.263C3.318 14.948 4.056 16.52 5.172 17.793C6.289 19.066 7.741 19.988 9.358 20.446C10.974 20.904 12.687 20.878 14.289 20.372V17.592C12.976 18.047 11.559 18.047 10.246 17.592C8.933 17.136 7.796 16.249 7.019 15.069C6.241 13.889 5.866 12.481 5.953 11.067C6.039 9.653 6.583 8.304 7.5 7.22C8.417 6.136 9.66 5.379 11.042 5.061C12.425 4.744 13.87 4.881 15.169 5.453V3.269C14.126 2.949 13.026 2.799 12 2.799C8.113 2.799 4.845 5.067 3.572 8.268C2.299 11.469 3.12 15.114 5.636 17.63C5.636 17.63 5.636 17.631 5.637 17.631C3.511 15.506 2.799 12.576 4 12Z"
-                      fill="white"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold">Android</h3>
-              </div>
-              <p className="text-gray-400 mb-6">Get the latest version for your Android device and enjoy all features.</p>
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm text-gray-400">Current Version</span>
-                <span className="text-sm font-medium bg-gray-700 px-2 py-1 rounded">{appVersion}</span>
-              </div>
-              <button
-                onClick={() => handleDownload("android")}
-                className="w-full py-3 bg-orange-500 hover:bg-orange-600 rounded-lg flex items-center justify-center gap-2 transition-colors"
+          <div className="flex flex-col md:flex-row justify-center items-stretch gap-8 max-w-4xl mx-auto">
+            {[
+              {
+                platform: "android",
+                IconSet: Download,
+                title: "Android",
+                desc: "Get the latest version for your Android device and enjoy all features.",
+                available: true,
+                actionText: "Download Now",
+                color: "orange",
+              },
+              {
+                platform: "ios",
+                IconSet: Smartphone,
+                title: "iOS",
+                desc: "iOS version is under development. Join our waitlist to be notified!",
+                available: false,
+                actionText: "Notify Me (Soon)",
+                color: "gray",
+              },
+            ].map((item, index) => (
+              <div
+                key={item.platform}
+                className={`flex-1 bg-gray-800 p-8 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-500 ease-out transform hover:-translate-y-1.5 flex flex-col ${
+                  downloadAreVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+                }`}
+                style={{ transitionDelay: downloadAreVisible ? `${index * 150}ms` : "0ms" }}
               >
-                <Download size={18} />
-                Download Now
-              </button>
-            </div>
-
-            <div className="flex-1 bg-gray-800 p-6 rounded-xl hover:shadow-lg transition-all hover:bg-gray-700">
-              <div className="mb-6 flex items-center gap-3">
-                <div className="w-12 h-12 bg-gray-600 rounded-xl flex items-center justify-center">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      d="M14.94 5.19A4.379 4.379 0 0 0 16 2.5a4.47 4.47 0 0 0-3 1.52 4.18 4.18 0 0 0-1.05 2.69 3.92 3.92 0 0 0 3.07-1.52zm1.48 2.3a4.93 4.93 0 0 1 2.35.63 4.65 4.65 0 0 1 2.23 3.6c0 .22-.24 1.33-.79 2.37A4.51 4.51 0 0 1 16.87 16c-.5 0-1.21-.16-1.87-.16-.63 0-1.32.17-1.85.17A4.47 4.47 0 0 1 9.75 14 8.2 8.2 0 0 1 8 9.93a5 5 0 0 1 2.54-4.56 5 5 0 0 1 2.3-.63c.63 0 1.36.18 1.9.18.53 0 1.3-.19 1.92-.19zm-5.5 11.65a16.38 16.38 0 0 0 1.57-3.93c.34-.14 1.88-.82 3.89-.84 0 .61.15 1.24.15 1.87 0 1.25-.27 2.45-.8 3.54a14.07 14.07 0 0 1-2.14 3.37c-.83-1.28-2.32-2.94-2.67-4.01z"
-                      fill="white"
-                    />
-                  </svg>
+                <div className="mb-6 flex items-center gap-4">
+                  <div
+                    className={`w-14 h-14 ${item.available ? "bg-green-500" : "bg-gray-600"} rounded-xl flex items-center justify-center shadow-md`}
+                  >
+                    <item.IconSet size={28} className="text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold">{item.title}</h3>
                 </div>
-                <h3 className="text-xl font-bold">iOS</h3>
+                <p className="text-gray-400 mb-6 text-base flex-grow">{item.desc}</p>
+                <div className="flex items-center justify-between mb-4 text-sm">
+                  <span className="text-gray-400">{item.available ? "Current Version" : "Status"}</span>
+                  <span className={`font-medium ${item.available ? "bg-green-600/50" : "bg-gray-700"} px-2.5 py-1 rounded-md`}>
+                    {item.available ? appVersion : "Coming Soon"}
+                  </span>
+                </div>
+                {item.available ? (
+                  <a
+                    href={appLink}
+                    download={appCode}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => handleDownload("android")}
+                    className={`w-full py-3.5 bg-${item.color}-500 hover:bg-${item.color}-600 rounded-lg flex items-center justify-center gap-2.5 transition-colors font-semibold shadow-md hover:shadow-lg`}
+                  >
+                    <Download size={18} /> {item.actionText}
+                  </a>
+                ) : (
+                  <button
+                    onClick={() => handleDownload("ios")}
+                    className={`w-full py-3.5 bg-${
+                      item.color
+                    }-600 rounded-lg flex items-center justify-center gap-2.5 transition-colors font-semibold shadow-md ${
+                      item.available ? "" : "cursor-not-allowed opacity-80 hover:bg-gray-500"
+                    }`}
+                    disabled={!item.available}
+                  >
+                    <AlertCircle size={18} /> {item.actionText}
+                  </button>
+                )}
               </div>
-              <p className="text-gray-400 mb-6">iOS version coming soon. Join our waitlist to be notified when it's available.</p>
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm text-gray-400">Status</span>
-                <span className="text-sm font-medium bg-gray-700 px-2 py-1 rounded">Coming Soon</span>
-              </div>
-              <button
-                onClick={() => handleDownload("ios")}
-                className="w-full py-3 bg-gray-600 rounded-lg flex items-center justify-center gap-2 transition-colors cursor-not-allowed opacity-80"
-              >
-                <AlertCircle size={18} />
-                Not Yet Available
-              </button>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-10 bg-gray-800 text-gray-300">
+      <footer className="py-12 bg-gray-800 text-gray-400">
         <div className="container mx-auto px-6">
-          <div className="flex flex-row justify-center items-center">
-            <div className="flex space-x-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-orange-500 transition-colors">
-                <span className="sr-only">Github</span>
-                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z" />
-                </svg>
+          <div className="flex flex-col items-center justify-center mb-8">
+            <img src="/logo-transparent-bg.png" alt="Tanaw Logo Small" className="h-10 w-auto opacity-70 mb-3" />
+            <div className="flex space-x-5">
+              <a
+                href="https://github.com/jules-pecaoco/tanaw"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Tanaw on GitHub"
+                className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-orange-500 hover:text-white transition-all transform hover:scale-110"
+              >
+                <span className="sr-only">GitHub</span>
+                <Github size={20} />
               </a>
+              {/* Add other social links here if needed */}
             </div>
           </div>
-          <div className="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="mb-4 md:mb-0">&copy; {new Date().getFullYear()} Tanaw. All rights reserved.</p>
+          <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center text-sm">
+            <p className="mb-4 md:mb-0">© {new Date().getFullYear()} Tanaw. All rights reserved.</p>
             <div className="flex space-x-6">
-              <a href="#" className="text-sm hover:text-orange-500 transition-colors">
-                Privacy Policy
-              </a>
-              <a href="#" className="text-sm hover:text-orange-500 transition-colors">
-                Terms of Service
-              </a>
-              <a href="#" className="text-sm hover:text-orange-500 transition-colors">
-                Contact
-              </a>
+              {["Privacy Policy", "Terms of Service", "Contact Us"].map((link) => (
+                <a key={link} href="#" className="hover:text-orange-400 transition-colors">
+                  {link}
+                </a>
+              ))}
             </div>
           </div>
         </div>
       </footer>
+
+      {/* Back to Top Button */}
+      {showBackToTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 ease-in-out z-50 transform hover:scale-110"
+          aria-label="Scroll to top"
+        >
+          <ArrowUp size={22} />
+        </button>
+      )}
     </div>
   );
 }
