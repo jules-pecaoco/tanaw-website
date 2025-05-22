@@ -62,9 +62,9 @@ export default function TanawLandingPage() {
   const [showBackToTop, setShowBackToTop] = useState(false);
 
   // App version
-  const appVersion = "0.9.85";
-  const appCode = "Tanaw.v0.9.85-beta.3.apk";
-  const appLink = `https://github.com/jules-pecaoco/tanaw/releases/download/v0.9.85-beta.3/Tanaw.v0.9.85-beta.3.apk`;
+  const appVersion = "1.0.1";
+  const appCode = "Tanaw.v1.0.1.apk";
+  const appLink = `https://github.com/jules-pecaoco/tanaw/releases/download/v1.0.1/Tanaw.v1.0.1.apk`;
 
   useEffect(() => {
     const handleScroll = () => {
