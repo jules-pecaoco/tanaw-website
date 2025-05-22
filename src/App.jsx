@@ -17,6 +17,9 @@ import {
   Smartphone, // Added (Example, can be replaced by specific app icons)
 } from "lucide-react";
 
+  import ads from "./assets/video/tanaw-advertisement.mp4"; 
+
+
 // Simple Intersection Observer Hook
 const useIntersectionObserver = (options = { threshold: 0.1, triggerOnce: true }) => {
   const [isIntersecting, setIsIntersecting] = useState(false);
@@ -359,18 +362,14 @@ export default function TanawLandingPage() {
               <div className="relative group">
                 <div className="absolute -inset-2 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl blur opacity-50 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
                 <div className="relative bg-black rounded-2xl overflow-hidden shadow-xl aspect-[16/9]">
-                  {/* Replace with actual video or interactive demo if available */}
-                  <img
-                    src="https://placehold.co/800x450/333333/FFFFFF?text=Tanaw+App+Demo"
-                    alt="Tanaw App Demo Placeholder"
-                    className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-all">
-                    <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <div className="w-0 h-0 border-t-[12px] border-t-transparent border-l-[20px] border-l-white border-b-[12px] border-b-transparent ml-1.5"></div>{" "}
-                      {/* Play button */}
-                    </div>
-                  </div>
+                  <video className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
+                   controls 
+                   autoPlay 
+                   loop
+                    
+                  >
+                    <source src={ads} type="video/mp4" />
+                  </video>
                 </div>
               </div>
             </div>
