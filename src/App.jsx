@@ -17,8 +17,7 @@ import {
   Smartphone, // Added (Example, can be replaced by specific app icons)
 } from "lucide-react";
 
-  import ads from "./assets/video/tanaw-advertisement.mp4"; 
-
+import ads from "./assets/video/tanaw-advertisement.mp4";
 
 // Simple Intersection Observer Hook
 const useIntersectionObserver = (options = { threshold: 0.1, triggerOnce: true }) => {
@@ -65,9 +64,9 @@ export default function TanawLandingPage() {
   const [showBackToTop, setShowBackToTop] = useState(false);
 
   // App version
-  const appVersion = "1.0.5";
-  const appCode = "Tanaw.v1.0.5.apk";
-  const appLink = `https://github.com/jules-pecaoco/tanaw/releases/download/v1.0.5/Tanaw.v1.0.5.apk`;
+  const appVersion = "2.5.0";
+  const appCode = "Tanaw.v2.5.0.apk";
+  const appLink = `https://github.com/jules-pecaoco/tanaw-v2/releases/download/vdev.15/Tanaw-dev.apk`;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -362,12 +361,7 @@ export default function TanawLandingPage() {
               <div className="relative group">
                 <div className="absolute -inset-2 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl blur opacity-50 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
                 <div className="relative bg-black rounded-2xl overflow-hidden shadow-xl aspect-[16/9]">
-                  <video className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-                   controls 
-                   autoPlay 
-                   loop
-                    
-                  >
+                  <video className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" controls autoPlay loop>
                     <source src={ads} type="video/mp4" />
                   </video>
                 </div>
