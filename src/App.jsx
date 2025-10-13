@@ -65,7 +65,7 @@ export default function TanawLandingPage() {
 
   // App version
   const appVersion = "2.5.0";
-  const appCode = "Tanaw.v2.5.0.apk";
+  const appCode = "Tanaw-dev.apk";
   const appLink = `https://github.com/jules-pecaoco/tanaw-v2/releases/download/vdev.15/Tanaw-dev.apk`;
 
   useEffect(() => {
@@ -100,7 +100,6 @@ export default function TanawLandingPage() {
   const handleDownload = (platform) => {
     if (platform === "android") {
       triggerNotification(`Preparing download for Tanaw v${appVersion} (Android)...`, "success");
-      // Actual download is handled by the <a> tag's href attribute
     } else if (platform === "ios") {
       triggerNotification("iOS version coming soon!", "info");
     }
@@ -307,7 +306,7 @@ export default function TanawLandingPage() {
       <section
         id="features"
         ref={featuresRef}
-        className={`py-20 bg-white transition-all duration-1000 ease-out ${
+        className={`py-20 bg-a white transition-all duration-1000 ease-out ${
           featuresAreVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
         }`}
       >
