@@ -252,7 +252,6 @@ export default function TanawLandingPage() {
                 >
                   <a
                     href={appLink}
-                    download={appCode}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => handleDownload("android")}
@@ -456,7 +455,6 @@ export default function TanawLandingPage() {
                 {item.available ? (
                   <a
                     href={appLink}
-                    download={appCode}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => handleDownload("android")}
