@@ -496,11 +496,14 @@ export default function TanawLandingPage() {
                 <span className="sr-only">GitHub</span>
                 <Github size={20} />
               </a>
-              {/* Add other social links here if needed */}
             </div>
           </div>
           <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center text-sm">
             <p className="mb-4 md:mb-0">© {new Date().getFullYear()} Tanaw. All rights reserved.</p>
+            <div>
+              Developed by <span className="font-semibold text-white">Jules Alfonz Pecaoco</span> | Partner with{" "}
+              <span className="font-semibold text-white">Mark Angelo Navarro</span>
+            </div>
             <div className="flex space-x-6">
               {["Privacy Policy", "Terms of Service", "Contact Us"].map((link) => (
                 <a key={link} href="#" className="hover:text-orange-400 transition-colors">
