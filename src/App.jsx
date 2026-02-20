@@ -64,7 +64,7 @@ export default function TanawLandingPage() {
   const [showBackToTop, setShowBackToTop] = useState(false);
 
   // App version
-  const appVersion = "2.5.0";
+  const appVersion = "2.7.0";
   const appCode = "Tanaw-dev.apk";
   const appLink = `https://github.com/jules-pecaoco/tanaw-v2/releases/download/vdev.17/Tanaw-dev.apk`;
 
